@@ -1,24 +1,164 @@
-import { boot } from 'quasar/wrappers'
+import {boot} from 'quasar/wrappers'
 import axios from 'axios'
 
-// Be careful when using SSR for cross-request state pollution
-// due to creating a Singleton instance here;
-// If any client changes this (global) instance, it might be a
-// good idea to move this instance creation inside of the
-// "export default () => {}" function below (which runs individually
-// for each client)
-const api = axios.create({ baseURL: 'https://api.example.com' })
-
-export default boot(({ app }) => {
-  // for use inside Vue files (Options API) through this.$axios and this.$api
-
-  app.config.globalProperties.$axios = axios
-  // ^ ^ ^ this will allow you to use this.$axios (for Vue Options API form)
-  //       so you won't necessarily have to import axios in each vue file
-
-  app.config.globalProperties.$api = api
-  // ^ ^ ^ this will allow you to use this.$api (for Vue Options API form)
-  //       so you can easily perform requests against your app's API
+const METHOD = Object.freeze({
+  GET: 'get', POST: 'post', PUT: 'put', DELETE: 'delete'
 })
 
-export { api }
+const baseURL = process.env.DEV ? 'http://localhost:28081/mnemosyne' : '/mnemosyne';
+
+const baseApi = axios.create({baseURL: `${baseURL}/api/v1`});
+
+const genericHttp = (
+  url,
+  method = METHOD.GET,
+  params = null,
+  headers = null,
+  data = null
+) => {
+  return new Promise((resolve, reject) => {
+    baseApi({
+      url: url,
+      method: method,
+      params: params,
+      headers: headers,
+      data: data,
+    }).then(res => {
+      console.log(res.data);
+      if (res.data.code === 200) {
+        resolve(res.data.data);
+      } else {
+        reject(res.data);
+      }
+    }).catch(err => {
+      if (err.response) {
+        reject(err.response);
+      } else {
+        reject(err);
+      }
+    });
+  });
+};
+
+const useApi = {
+  auth: {
+    check: (accessToken) => genericHttp(
+      '/auth/check',
+      METHOD.GET,
+      null,
+      {
+        'x-access-token': accessToken
+      }
+    ),
+    refresh: (refreshToken) => genericHttp(
+      '/auth/refresh',
+      METHOD.GET,
+      null,
+      {
+        'x-refresh-token': refreshToken
+      }
+    ),
+    verifyEmail: (email) => genericHttp(
+      '/auth/verify/email',
+      METHOD.POST,
+      null,
+      null,
+      {
+        email: email
+      }
+    ),
+    loginEmailPassword: (email, password) => genericHttp(
+      '/auth/login/email',
+      METHOD.POST,
+      null,
+      null,
+      {
+        email: email,
+        password: password
+      }
+    ),
+    loginEmailCode: (email, code) => genericHttp(
+      '/auth/login/email',
+      METHOD.POST,
+      null,
+      null,
+      {
+        email: email,
+        code: code
+      }
+    ),
+    resetEmail: (email, code, newPassword) => genericHttp(
+      '/auth/reset/email',
+      METHOD.PUT,
+      null,
+      null,
+      {
+        email: email,
+        code: code,
+        newPassword: newPassword
+      }
+    ),
+    migrateEmail: (accessToken, newEmail, code) => genericHttp(
+      '/auth/migrate/email',
+      METHOD.PUT,
+      null,
+      {
+        'x-access-token': accessToken
+      },
+      {
+        newEmail: newEmail,
+        code: code
+      }
+    ),
+    deactivateEmail: (accessToken, code) => genericHttp(
+      '/auth/deactivate/email',
+      METHOD.DELETE,
+      null,
+      {
+        'x-access-token': accessToken
+      },
+      {
+        code: code
+      }
+    ),
+  },
+  user: {
+    getInfo: (accessToken, userId) => genericHttp(
+      '/user/info',
+      METHOD.GET,
+      {
+        userId: userId
+      },
+      {
+        'x-access-token': accessToken
+      }
+    ),
+    updateInfo: (accessToken, data) => genericHttp(
+      '/user/info',
+      METHOD.PUT,
+      null,
+      {
+        'x-access-token': accessToken
+      },
+      data
+    ),
+    getAvatar: (accessToken, userId) => genericHttp(
+      '/user/avatar',
+      METHOD.GET,
+      {
+        userId: userId
+      },
+      {
+        'x-access-token': accessToken
+      }
+    ),
+  }
+};
+
+export default boot(({app}) => {
+  app.config.globalProperties.$axios = axios
+  app.config.globalProperties.$http = genericHttp
+  app.config.globalProperties.$api = useApi;
+})
+
+export {genericHttp, useApi}
