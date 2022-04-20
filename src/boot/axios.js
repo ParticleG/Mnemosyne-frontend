@@ -25,8 +25,8 @@ const genericHttp = (
       data: data,
     }).then(res => {
       console.log(res.data);
-      if (res.data.code === 200) {
-        resolve(res.data.data);
+      if (res.data.code >= 200 && res.data.code < 300) {
+        resolve(res.data);
       } else {
         reject(res.data);
       }

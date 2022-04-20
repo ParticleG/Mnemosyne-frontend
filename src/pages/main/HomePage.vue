@@ -5,9 +5,6 @@
         <div class="text-center text-h1 text-weight-regular">
           {{ i18n("labels.title") }}
         </div>
-        <div>
-          {{ searchTest }}
-        </div>
         <q-input
           name="searchText"
           clearable
@@ -41,17 +38,8 @@ export default defineComponent({
     i18n(relativePath) {
       return this.$t("pages.main.homepage." + relativePath);
     },
-    onSubmit(event) {
-      const formData = new FormData(event.target);
-      const data = [];
-
-      for (const [name, value] of formData.entries()) {
-        data.push({
-          name,
-          value
-        })
-      }
-      console.log(data);
+    onSubmit() {
+      console.log(this.searchTest);
     }
   }
 });

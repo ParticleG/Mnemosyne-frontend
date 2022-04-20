@@ -3,8 +3,8 @@
 </template>
 
 <script>
-import {defineComponent} from 'vue'
 import {Notify, useQuasar} from "quasar";
+import {defineComponent} from 'vue'
 
 export default defineComponent({
   name: 'App',
@@ -22,13 +22,7 @@ export default defineComponent({
     } else {
       this.$i18n.locale = this.$q.lang.getLocale();
     }
-
-    /** @property {Object} window */
-    window.addEventListener("beforeunload", this.beforeUnload);
   },
-  methods: {
-    beforeUnload() {
-    }
-  }
+  methods: {}
 })
 </script>

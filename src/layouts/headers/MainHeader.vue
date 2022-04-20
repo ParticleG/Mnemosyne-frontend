@@ -1,23 +1,29 @@
 <template>
-  <q-header elevated>
-    <q-toolbar class="q-electron-drag">
+  <q-header>
+    <q-toolbar class="bg-white text-black q-electron-drag">
       <q-btn
         flat
         dense
         round
         icon="menu"
         @click="$emit('click:leftMenu')"/>
-      <q-avatar>
-        <AppLogo :fill="getPaletteColor('white')"/>
-      </q-avatar>
-      <q-toolbar-title>
-        {{ i18n("labels.title") }}
-      </q-toolbar-title>
+      <q-btn
+        flat
+        no-caps
+        stretch
+        @click="$router.push('/')">
+        <q-avatar>
+          <AppLogo :fill="getPaletteColor('black')"/>
+        </q-avatar>
+        <div class="text-h6">
+          {{ i18n("labels.title") }}
+        </div>
+      </q-btn>
       <q-space/>
-      <q-btn flat stretch icon="language">
+      <q-btn flat round icon="language">
         <LanguagesMenu/>
       </q-btn>
-      <q-btn flat stretch icon="settings">
+      <q-btn flat round icon="settings">
         <SettingsMenu/>
       </q-btn>
       <ProfileButton/>

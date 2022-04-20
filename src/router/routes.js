@@ -16,7 +16,15 @@ const routes = [
           drawer: () => import('layouts/drawers/MainDrawer'),
           header: () => import('layouts/headers/MainHeader'),
         }
-      }
+      },
+      {
+        path: 'profile',
+        components: {
+          default: () => import('pages/main/ProfilePage'),
+          drawer: () => import('layouts/drawers/MainDrawer'),
+          header: () => import('layouts/headers/MainHeader'),
+        }
+      },
     ]
   },
   {

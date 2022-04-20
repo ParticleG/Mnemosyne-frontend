@@ -1,13 +1,16 @@
 <template>
-  <div class="row justify-between">
+  <div class="row justify-between q-my-md">
     <div class="text-h5">
       {{ i18n(`${availableTypes[typeIndex]}.labels.title`) }}
     </div>
-    <q-toggle
+    <q-btn
       color="primary"
-      :label="i18n('labels.usePassWord')"
-      :model-value="usePassWord"
-      @update:modelValue="usePassWord = $event"/>
+      dense
+      flat
+      no-caps
+      @click="usePassWord = !usePassWord">
+      {{ i18n(`labels.options.${usePassWord ? 'code' : 'password'}`) }}
+    </q-btn>
   </div>
   <q-form
     class="column q-gutter-y-md">
@@ -29,23 +32,45 @@
       :loading="secondState.loading"
       :maxlength="usePassWord ? null : 8"
       outlined
-      v-model="secondInput"/>
+      :type="usePassWord ? 'password' : 'text'"
+      v-model="secondInput">
+      <template v-slot:append>
+        <q-btn
+          v-if="!usePassWord"
+          class="q-ma-none"
+          color="primary"
+          dense
+          :disable="!firstInput||firstState.error"
+          flat
+          :loading="sendCodeState.loading"
+          no-caps
+          stretch
+          @click="sendCode">
+          <template v-slot:loading>
+            <q-spinner-dots/>
+          </template>
+          {{ i18n("labels.sendCode") }}
+        </q-btn>
+      </template>
+    </q-input>
     <q-btn
       class="col-auto q-py-sm"
       color="primary"
       :disable="!firstInput||firstState.error||secondState.error"
-      :loading="buttonState.loading"
+      :loading="submitState.loading"
       @click="submit">
       <template v-slot:loading>
-        <q-spinner-hourglass class="on-left"/>
+        <q-spinner class="on-left"/>
+        {{ i18n("labels.submit") }}
       </template>
-      {{ i18n(`labels.submit.${usePassWord ? 'password' : 'code'}`) }}
+      {{ i18n("labels.submit") }}
     </q-btn>
   </q-form>
 </template>
 
 <script>
 import {computed, defineComponent, reactive, ref} from 'vue';
+import {useUserStore} from "stores/user";
 
 export default defineComponent({
   name: "LoginForm",
@@ -84,14 +109,18 @@ export default defineComponent({
       }),
       loading: false,
     });
-    const secondInput = "";
+    const secondInput = ref("");
     const secondState = reactive({
       error: false,
       loading: false,
     });
-    const buttonState = reactive({
+    const sendCodeState = reactive({
       loading: false,
     });
+    const submitState = reactive({
+      loading: false,
+    });
+    const userStore = useUserStore();
     return {
       availableTypes,
       typeIndex,
@@ -100,7 +129,9 @@ export default defineComponent({
       firstState,
       secondInput,
       secondState,
-      buttonState
+      sendCodeState,
+      submitState,
+      userStore,
     };
   },
   emits: ['go-back'],
@@ -111,31 +142,67 @@ export default defineComponent({
     emitGoBack() {
       this.$emit('go-back');
     },
-    submit() {
-      this.buttonState.loading = true;
+    sendCode() {
+      this.sendCodeState.loading = true;
       this.$api.auth.verifyEmail(
-        this.firstInput.value
-      ).then((data) => {
+        this.firstInput
+      ).then(() => {
         this.$q.notify({
           type: 'positive',
-          message: this.i18n('notifications.success')
+          message: this.i18n('notifications.sendCode.success')
         });
       }).catch((err) => {
-        if (err.hasOwnProperty('data') && err.data.hasOwnProperty('code')) {
-          this.$q.notify({
-            type: 'warning',
-            message: this.i18n('notifications.failed') + err.data.reason
-          });
-        } else {
-          this.$q.notify({
-            type: 'negative',
-            message: this.i18n('notifications.error')
-          });
-        }
+        this.errorHandler(err, "sendCode");
       }).finally(() => {
-        this.buttonState.loading = false;
+        this.sendCodeState.loading = false;
       });
     },
+    async submit() {
+      this.submitState.loading = true;
+      let body;
+      try {
+        if (this.usePassWord) {
+          body = await this.$api.auth.loginEmailPassword(
+            this.firstInput,
+            this.secondInput
+          );
+        } else {
+          body = await this.$api.auth.loginEmailCode(
+            this.firstInput,
+            this.secondInput
+          );
+        }
+        console.log(body);
+        const data = body.data;
+        this.userStore.accessToken = data.accessToken;
+        this.userStore.refreshToken = data.refreshToken;
+        console.log(this.userStore.accessToken, this.userStore.refreshToken);
+        await this.userStore.update();
+      } catch (err) {
+        this.errorHandler(err, "submit");
+      }
+      this.submitState.loading = false;
+      if (body.code === 201) {
+        // TODO: Goto modify user info page
+        await this.$router.push('/main/profile');
+      } else {
+        this.emitGoBack();
+      }
+    },
+    errorHandler(err, notifyType) {
+      if (err.hasOwnProperty('data') && err.data.hasOwnProperty('code')) {
+        this.$q.notify({
+          type: 'warning',
+          message: this.i18n(`notifications.${notifyType}.failed`) + this.$t(err.data.message),
+          caption: err.data.reason
+        });
+      } else {
+        this.$q.notify({
+          type: 'negative',
+          message: this.i18n(`notifications.${notifyType}.error`)
+        });
+      }
+    }
   },
 });
 </script>

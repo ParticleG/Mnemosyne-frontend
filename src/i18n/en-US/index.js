@@ -12,7 +12,10 @@ export default {
         },
       },
       labels: {
-        usePassWord: 'Use Password',
+        options: {
+          code: 'Login with code',
+          password: 'Login with password',
+        },
         secondInput: {
           code: 'Validation code',
           password: 'Password'
@@ -21,15 +24,20 @@ export default {
           code: 'Invalid validation code',
           password: 'Invalid password'
         },
-        submit: {
-          code: 'Get code',
-          password: 'Login'
-        }
+        sendCode: 'Send',
+        submit: 'Login',
       },
       notifications: {
-        success: 'Code sent successfully',
-        failed: 'Failed to send code: ',
-        error: 'Error sending code'
+        sendCode: {
+          success: 'Code sent successfully',
+          failed: 'Failed to send code: ',
+          error: 'Error sending code'
+        },
+        submit: {
+          success: 'Login successful',
+          failed: 'Failed to login: ',
+          error: 'Error logging in'
+        }
       },
       phone: {
         labels: {
@@ -42,6 +50,8 @@ export default {
     profileButton: {
       labels: {
         login: 'Login',
+        manage: 'Manage your account',
+        logout: 'Logout',
       }
     },
     settingsMenu: {
@@ -77,12 +87,23 @@ export default {
       }
     }
   },
+  Mnemosyne: {
+    DataManager: {
+      invalidEmail: "Invalid email",
+      invalidCode: "Invalid code"
+    }
+  },
   pages: {
     main: {
       homepage: {
         labels: {
           title: "Mnemosyne",
           placeholder: "Search"
+        }
+      },
+      profile:{
+        labels: {
+          viewAvatar: 'View avatar',
         }
       }
     },
