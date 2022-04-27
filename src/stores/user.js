@@ -15,14 +15,27 @@ export const useUserStore = defineStore('user', {
     region: '',
     avatar: '',
     avatar_hash: '',
+    followers: [],
+    following: [],
+    stars: [],
+    posts: [],
+    collections: [],
   }),
+  getters: {
+    count: state => ({
+      followers: state.followers.length,
+      following: state.following.length,
+      stars: state.stars.length,
+      posts: state.posts.length,
+      collections: state.collections.length,
+    }),
+  },
   actions: {
     async check() {
       try {
         await $api.auth.check(this.accessToken);
         return true;
       } catch (err) {
-        console.log(err);
         if (err.hasOwnProperty('data') && err.data.hasOwnProperty('code')) {
           try {
             const body = await $api.auth.refresh(this.refreshToken);
@@ -48,7 +61,7 @@ export const useUserStore = defineStore('user', {
         this.motto = data.motto;
         this.region = data.region;
         // if (this.avatar_hash !== data.avatar_hash) {
-          this.avatar = (await $api.user.getAvatar(this.accessToken)).data;
+        this.avatar = (await $api.user.getAvatar(this.accessToken)).data;
         // }
         this.avatar_hash = data.avatar_hash;
       } catch (err) {

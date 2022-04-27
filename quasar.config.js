@@ -8,11 +8,9 @@
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli-webpack/quasar-config-js
 
-
-const ESLintPlugin = require('eslint-webpack-plugin')
-
-
 const {configure} = require('quasar/wrappers');
+const ESLintPlugin = require('eslint-webpack-plugin')
+const fs = require('fs');
 
 module.exports = configure(function (ctx) {
   return {
@@ -27,6 +25,7 @@ module.exports = configure(function (ctx) {
     // https://v2.quasar.dev/quasar-cli-webpack/boot-files
     boot: [
       'axios',
+      'config',
       'cropper',
       'i18n',
     ],
@@ -53,7 +52,14 @@ module.exports = configure(function (ctx) {
     // Full list of options: https://v2.quasar.dev/quasar-cli-webpack/quasar-config-js#Property%3A-build
     build: {
       vueRouterMode: 'hash', // available values: 'hash', 'history'
-
+      afterBuild: ({quasarConf}) => {
+        if (process.env.DEPLOY_DIR) {
+          console.log('\x1b[36m%s\x1b[0m', `Deploying from "${quasarConf.build.distDir}" ...`);
+          console.log('\x1b[36m%s\x1b[0m', `  to ${process.env.DEPLOY_DIR}`);
+          fs.cpSync(quasarConf.build.distDir, process.env.DEPLOY_DIR, {recursive: true});
+          console.log('\x1b[32m%s\x1b[0m', 'Done!');
+        }
+      },
       // transpile: false,
       // publicPath: '/',
 
@@ -105,12 +111,12 @@ module.exports = configure(function (ctx) {
       // directives: [],
       cssAddon: true,
       // Quasar plugins
-      plugins: ["Dialog", "Loading", "LocalStorage", "Notify", "SessionStorage"]
+      plugins: ["AppFullscreen", "Dialog", "Loading", "LocalStorage", "Notify", "SessionStorage"]
     },
 
     // animations: 'all', // --- includes all animations
     // https://quasar.dev/options/animations
-    animations: [],
+    animations: 'all',
 
     // https://v2.quasar.dev/quasar-cli-webpack/developing-ssr/configuring-ssr
     ssr: {

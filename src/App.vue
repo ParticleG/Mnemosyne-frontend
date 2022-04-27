@@ -15,6 +15,9 @@ export default defineComponent({
     } else {
       $q.dark.set("auto");
     }
+    if ($q.platform.is.mobile) {
+      $q.fullscreen.request();
+    }
   },
   created() {
     if (this.$q.localStorage.has("mnemosyne.settings.language")) {

@@ -49,8 +49,11 @@ export default {
     },
     profileButton: {
       labels: {
-        login: 'Login',
-        manage: 'Manage your account',
+        followers: 'Followers',
+        following: 'Following',
+        stars: 'Stars',
+        posts: 'Posts',
+        collections: 'Collections',
         logout: 'Logout',
       }
     },
@@ -58,18 +61,51 @@ export default {
       labels: {
         darkMode: "Dark mode"
       }
+    },
+    typeTabs: {
+      labels: {
+        Audios: "Audios",
+        Documents: "Documents",
+        Ebooks: "Ebooks",
+        Images: "Images",
+        Models: "Models",
+        Videos: "Videos"
+      }
+    },
+    uploadDialog: {
+      labels: {
+        title: 'Upload data',
+        name: 'Name',
+        tags: "Tags",
+        collection: "Collection",
+        content: "Content",
+        visibility: "Visibility",
+        extra: "Extra",
+        link: "Link",
+        file: "File",
+        advanced: "Advanced",
+        cancel: "Cancel",
+        upload: "Upload",
+      },
+      slider: [
+        "Private",
+        "Friend Only",
+        "Search Only",
+        "Public",
+      ]
     }
   },
   layouts: {
-    drawers: {
-      main: {
-        labels: {}
-      }
-    },
     headers: {
       main: {
         labels: {
           title: "Mnemosyne",
+        }
+      },
+      search: {
+        labels: {
+          title: "Mnemosyne",
+          search: "Search"
         }
       }
     },
@@ -81,11 +117,6 @@ export default {
       }
     },
     main: {},
-    stack: {
-      labels: {
-        back: "Back"
-      }
-    }
   },
   Mnemosyne: {
     DataManager: {
@@ -94,26 +125,34 @@ export default {
     }
   },
   pages: {
-    main: {
-      homepage: {
-        labels: {
-          title: "Mnemosyne",
-          placeholder: "Search"
-        }
-      },
-      profile:{
-        labels: {
-          viewAvatar: 'View avatar',
-        }
+    homepage: {
+      labels: {
+        title: "Mnemosyne",
+        search: "Search"
       }
     },
-    stack: {
-      loginPage: {
-        labels: {
-          phone: "Phone",
-          email: "Email",
-        }
+    profile: {
+      labels: {
+        viewAvatar: 'View avatar',
+      },
+      tabs: {
+        info: "Info",
+        relationships: "Relationships",
+        stars: "Stars",
+        posts: "Posts",
+        collections: "Collections",
       }
-    }
+    },
+    loginPage: {
+      labels: {
+        phone: "Phone",
+        email: "Email",
+      }
+    },
+    searchPage: {
+      labels: {
+        noResults: "No results",
+      }
+    },
   }
 }

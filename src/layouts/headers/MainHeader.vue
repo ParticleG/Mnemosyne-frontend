@@ -1,32 +1,35 @@
 <template>
-  <q-header>
-    <q-toolbar class="bg-white text-black q-electron-drag">
+  <q-header bordered class="bg-transparent">
+    <q-toolbar
+      class="q-electron-drag"
+      :class="$q.dark.isActive ? 'text-white' : 'text-black'">
       <q-btn
-        flat
-        dense
-        round
-        icon="menu"
-        @click="$emit('click:leftMenu')"/>
-      <q-btn
+        :dense="$q.screen.lt.sm"
         flat
         no-caps
         stretch
         @click="$router.push('/')">
         <q-avatar>
-          <AppLogo :fill="getPaletteColor('black')"/>
+          <AppLogo :fill="getPaletteColor($q.dark.isActive ? 'white' : 'black')"/>
         </q-avatar>
-        <div class="text-h6">
+        <div v-if="$q.screen.gt.xs" class="text-h6">
           {{ i18n("labels.title") }}
         </div>
       </q-btn>
       <q-space/>
-      <q-btn flat round icon="language">
+      <ProfileButton/>
+      <q-btn
+        flat
+        icon="language"
+        round>
         <LanguagesMenu/>
       </q-btn>
-      <q-btn flat round icon="settings">
+      <q-btn
+        flat
+        icon="settings"
+        round>
         <SettingsMenu/>
       </q-btn>
-      <ProfileButton/>
       <div v-if="$q.platform.is.electron" class="row q-ml-sm q-gutter-x-sm">
         <q-btn dense flat icon="minimize" @click="minimize"/>
         <q-btn dense flat icon="crop_square" @click="toggleMaximize"/>
@@ -78,6 +81,6 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 
 </style>

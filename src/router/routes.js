@@ -1,37 +1,41 @@
 const routes = [
   {
     path: '/',
-    redirect: '/main/home',
-  },
-  {
-    path: '/main',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      {path: '', redirect: '/main/home'},
+      {path: '', redirect: '/home'},
       {
         name: 'home',
         path: 'home',
         components: {
-          default: () => import('pages/main/HomePage'),
-          drawer: () => import('layouts/drawers/MainDrawer'),
+          default: () => import('pages/HomePage'),
           header: () => import('layouts/headers/MainHeader'),
         }
       },
       {
-        path: 'profile',
+        name: 'login',
+        path: 'login',
         components: {
-          default: () => import('pages/main/ProfilePage'),
-          drawer: () => import('layouts/drawers/MainDrawer'),
+          default: () => import('pages/LoginPage'),
           header: () => import('layouts/headers/MainHeader'),
         }
       },
-    ]
-  },
-  {
-    path: '/stack',
-    component: () => import('layouts/StackLayout'),
-    children: [
-      {path: 'login', component: () => import('pages/stack/LoginPage')},
+      {
+        name: 'profile',
+        path: 'profile',
+        components: {
+          default: () => import('pages/ProfilePage'),
+          header: () => import('layouts/headers/MainHeader'),
+        }
+      },
+      {
+        name: 'search',
+        path: 'search',
+        components: {
+          default: () => import('pages/SearchPage'),
+          header: () => import('layouts/headers/SearchHeader'),
+        }
+      },
     ]
   },
 

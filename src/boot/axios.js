@@ -24,7 +24,7 @@ const genericHttp = (
       headers: headers,
       data: data,
     }).then(res => {
-      console.log(res.data);
+      // console.log(res.data);
       if (res.data.code >= 200 && res.data.code < 300) {
         resolve(res.data);
       } else {
@@ -119,6 +119,32 @@ const useApi = {
       },
       {
         code: code
+      }
+    ),
+  },
+  data:{
+    upload: (accessToken, dataType, data) => genericHttp(
+      '/data/upload',
+      METHOD.POST,
+      {
+        dataType: dataType,
+      },
+      {
+        'x-access-token': accessToken
+      },
+      data
+    ),
+    fuzzy: (accessToken, dataType, query) => genericHttp(
+      '/data/fuzzy',
+      METHOD.POST,
+      {
+        dataType: dataType,
+      },
+      {
+        'x-access-token': accessToken
+      },
+      {
+        query: query
       }
     ),
   },

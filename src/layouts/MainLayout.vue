@@ -1,13 +1,6 @@
 <template>
   <q-layout class="hide-scrollbar" :view="layout.now">
-    <router-view
-      name="header"
-      @click:leftMenu="drawer.active = !drawer.active"/>
-
-    <router-view
-      name="drawer"
-      v-model="drawer.active"/>
-
+    <router-view name="header"/>
     <q-page-container>
       <router-view/>
     </q-page-container>

@@ -172,7 +172,6 @@ export default defineComponent({
             this.secondInput
           );
         }
-        console.log(body);
         const data = body.data;
         this.userStore.accessToken = data.accessToken;
         this.userStore.refreshToken = data.refreshToken;
@@ -184,7 +183,7 @@ export default defineComponent({
       this.submitState.loading = false;
       if (body.code === 201) {
         // TODO: Goto modify user info page
-        await this.$router.push('/main/profile');
+        await this.$router.push({name: "profile"});
       } else {
         this.emitGoBack();
       }

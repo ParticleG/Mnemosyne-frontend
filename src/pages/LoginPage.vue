@@ -55,7 +55,7 @@ export default defineComponent({
   emits: ['go-back'],
   methods: {
     i18n(path) {
-      return this.$t('pages.stack.loginPage.' + path);
+      return this.$t('pages.loginPage.' + path);
     },
     emitGoBack() {
       this.$emit("go-back");
