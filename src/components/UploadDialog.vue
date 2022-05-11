@@ -7,7 +7,7 @@
         <div class="text-h6">{{ i18n("labels.title") }}</div>
       </q-card-section>
       <q-card-section>
-        <TypeTabs v-model="dataType"/>
+        <TypeTabs :hidden="[0]" v-model="dataType"/>
       </q-card-section>
       <q-card-section class="q-gutter-y-sm">
         <q-input
@@ -16,6 +16,12 @@
           outlined
           :placeholder="i18n('labels.name')"
           v-model="dataName"/>
+        <q-input
+          clearable
+          :dense="$q.screen.lt.sm"
+          outlined
+          :placeholder="i18n('labels.description')"
+          v-model="dataDescription"/>
         <q-select
           ref="dataTypeSelect"
           :dense="$q.screen.lt.sm"
@@ -56,7 +62,7 @@
               class="q-mt-lg q-px-sm"
               :color="sliderColors[dataVisibility]"
               :min="0"
-              :max="3"
+              :max="2"
               label
               label-always
               :label-value="i18n(`slider.${dataVisibility}`)"
@@ -64,6 +70,12 @@
               marker-labels
               track-size="8px"
               v-model="dataVisibility"/>
+            <q-input
+              clearable
+              :dense="$q.screen.lt.sm"
+              outlined
+              :placeholder="i18n('labels.preview')"
+              v-model="dataPreview"/>
             <q-input
               clearable
               :dense="$q.screen.lt.sm"
@@ -93,6 +105,7 @@
         <q-btn
           :dense="$q.screen.lt.sm"
           color="primary"
+          :loading="uploading"
           @click="upload">
           {{ i18n("labels.upload") }}
         </q-btn>
@@ -119,16 +132,20 @@ export default defineComponent({
 
     const sliderColors = ["red", "orange", "blue", "green"];
 
-    const dataType = ref(DataTypes[3].name);
+    const dataType = ref(DataTypes[2].name);
     const dataName = ref("");
+    const dataDescription = ref("");
     const dataTags = ref([]);
     const dataCollection = ref(-1);
     const dataContent = ref("");
-    const dataVisibility = ref(3);
+    const dataVisibility = ref(2);
+    const dataPreview = ref("");
     const dataExtra = ref("");
 
     const contentType = ref("link");
     const advanced = ref(false);
+
+    const uploading = ref(false);
     return {
       dialogRef,
       onDialogHide,
@@ -136,13 +153,16 @@ export default defineComponent({
       sliderColors,
       dataType,
       dataName,
+      dataDescription,
       dataTags,
       dataCollection,
       dataContent,
       dataVisibility,
+      dataPreview,
       dataExtra,
       contentType,
-      advanced
+      advanced,
+      uploading
     };
   },
   methods: {
@@ -171,32 +191,34 @@ export default defineComponent({
       this.hide();
     },
     async upload() {
-      console.log({
-        type: this.dataType,
-        name: this.dataName,
-        tags: this.dataTags,
-        collection: this.dataCollection,
-        content: this.dataContent,
-        visibility: this.dataVisibility,
-        extra: this.dataExtra,
-      });
-      // try {
-      //   await this.$api.data.upload(
-      //     this.userStore.accessToken,
-      //     this.dataType,
-      //     {
-      //       name: this.dataName,
-      //       tags: this.dataTags,
-      //       collection: this.dataCollection,
-      //       content: this.dataContent,
-      //       visibility: this.dataVisibility,
-      //       extra: this.dataExtra,
-      //     }
-      //   );
-      // } catch (err) {
-      //   this.errorHandler(err, "submit");
-      // }
-      // this.hide();
+      try {
+        this.uploading = true;
+        await this.$api.data.upload(
+          this.userStore.accessToken,
+          this.dataType,
+          {
+            name: this.dataName,
+            description: this.dataDescription,
+            tags: this.dataTags,
+            content: this.dataContent,
+            extra: this.dataExtra,
+            preview: this.dataPreview,
+            collection: this.dataCollection,
+            visibility: this.dataVisibility,
+          }
+        );
+        this.$q.notify({
+          type: 'positive',
+          message: this.i18n(`notifications.submit.success`),
+        });
+        setTimeout(() => {
+          this.hide();
+        }, 500);
+      } catch (err) {
+        this.errorHandler(err, "submit");
+      } finally {
+        this.uploading = false;
+      }
     },
     errorHandler(err, notifyType) {
       if (err.hasOwnProperty('data') && err.data.hasOwnProperty('code')) {

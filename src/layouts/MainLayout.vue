@@ -4,6 +4,7 @@
     <q-page-container>
       <router-view/>
     </q-page-container>
+    <router-view name="footer"/>
   </q-layout>
 </template>
 

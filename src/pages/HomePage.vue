@@ -63,7 +63,7 @@ export default defineComponent({
       }
     });
     const searchText = ref("");
-    const dataType = ref(DataTypes[3].name);
+    const dataType = ref(DataTypes[0].name);
     return {
       textSize,
       searchText,

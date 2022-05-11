@@ -1,5 +1,5 @@
 <template>
-  <q-header bordered class="bg-white">
+  <q-header bordered :style="{background: $q.dark.isActive ? '#121212' : '#ffffff'}">
     <q-toolbar
       class="q-electron-drag q-py-md q-gutter-x-sm"
       :class="$q.dark.isActive ? 'text-white' : 'text-black'">
@@ -71,6 +71,7 @@
       <TypeTabs
         class="q-pl-md-xl q-ml-md-md"
         :class="$q.dark.isActive ? 'text-light' : 'text-dark'"
+        :change-handler="submit"
         v-model="dataType"/>
     </q-toolbar>
   </q-header>

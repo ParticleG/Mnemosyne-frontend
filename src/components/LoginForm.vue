@@ -175,7 +175,6 @@ export default defineComponent({
         const data = body.data;
         this.userStore.accessToken = data.accessToken;
         this.userStore.refreshToken = data.refreshToken;
-        console.log(this.userStore.accessToken, this.userStore.refreshToken);
         await this.userStore.update();
       } catch (err) {
         this.errorHandler(err, "submit");
@@ -185,7 +184,7 @@ export default defineComponent({
         // TODO: Goto modify user info page
         await this.$router.push({name: "profile"});
       } else {
-        this.emitGoBack();
+        this.$router.go(-1);
       }
     },
     errorHandler(err, notifyType) {

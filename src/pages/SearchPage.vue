@@ -1,5 +1,5 @@
 <template>
-  <q-page class="flex q-pa-sm q-pa-md-md">
+  <q-page class="flex column q-pa-sm q-pa-md-md">
     <div
       v-if="!searchResults.length"
       class="absolute-center text-grey"
@@ -7,62 +7,28 @@
       {{ i18n('labels.noResults') }}
     </div>
     <div
-      class="col-grow"
+      class="col-grow full-width"
       :style="{columnCount: columnCount, columnGap: 0}">
-      <q-card
-        v-for="(item, index) in searchResults"
-        :key="index"
-        class="q-mb-md q-mx-sm"
-        @mouseenter="covers[index] = true"
-        @mouseleave="covers[index] = false"
-        style="break-inside: avoid;">
-        <q-img
-          fit="contain"
-          :src="item.content">
-          <template v-slot:loading>
-            <q-skeleton class="absolute-full"/>
-          </template>
-          <transition
-            v-if="$q.screen.gt.sm"
-            enter-active-class="animated fadeInDown"
-            leave-active-class="animated fadeOutUp">
-            <div
-              v-show="covers[index]"
-              class="absolute-top text-body2">
-              {{ item.name }}
-            </div>
-          </transition>
-          <transition
-            v-if="$q.screen.gt.sm"
-            enter-active-class="animated fadeInUp"
-            leave-active-class="animated fadeOutDown">
-            <div
-              v-show="covers[index]"
-              class="absolute-bottom">
-              <q-chip
-                v-for="(tag, index) in JSON.parse(item.tags).slice(0, tagCount)"
-                :key="index"
-                dense
-                :size="$q.screen.gt.md? 'sm': 'md'"
-                :label="tag"/>
-            </div>
-          </transition>
-        </q-img>
-        <q-card-section v-if="!$q.screen.gt.sm" class="q-pa-sm q-gutter-y-xs">
-          <div class="text-body2">
-            {{ item.name }}
-          </div>
-          <q-separator/>
-          <div>
-            <q-chip
-              v-for="(tag, index) in JSON.parse(item.tags).slice(0, tagCount)"
-              :key="index"
-              dense
-              :size="$q.screen.lt.sm ? 'sm' : 'md'"
-              :label="tag"/>
-          </div>
-        </q-card-section>
-      </q-card>
+      <q-infinite-scroll
+        ref="infiniteScroll"
+        :offset="10"
+        @load="onLoad">
+        <div
+          v-for="(item, index) in searchResults"
+          :key="index"
+          ref="resultElements"
+          class="q-pb-md q-px-sm">
+          <ImagesCard
+            v-if="item.type === 'Images'"
+            :data="item"/>
+          <VideosCard
+            v-if="item.type === 'Videos'"
+            :data="item"/>
+        </div>
+      </q-infinite-scroll>
+    </div>
+    <div class="self-center">
+      <q-spinner-dots color="primary" size="40px"/>
     </div>
   </q-page>
 </template>
@@ -70,33 +36,23 @@
 <script>
 import {storeToRefs} from "pinia";
 import {useQuasar} from "quasar";
-import {computed, defineComponent, ref, watch} from 'vue';
+import {computed, defineComponent, ref} from 'vue';
 import {useRoute} from "vue-router";
 import {useApi} from "boot/axios";
 import {useUserStore} from "stores/user";
 
+import ImagesCard from "components/DataCards/ImagesCard";
+import VideosCard from "components/DataCards/VideosCard";
+import {arrayToChunks, sleep} from "boot/config";
+
 export default defineComponent({
   name: "SearchPage",
+  components: {VideosCard, ImagesCard},
   emits: ['go-back'],
   setup() {
     const {accessToken} = storeToRefs(useUserStore());
     const searchResults = ref([]);
-    const covers = ref([]);
-
-    const tagCount = computed(() => {
-      switch (useQuasar().screen.name) {
-        case "xs":
-          return 5;
-        case "sm":
-          return 10;
-        case "md":
-          return 6;
-        case "lg":
-          return 8;
-        default:
-          return 10;
-      }
-    });
+    const perPage = ref(30);
 
     const columnCount = computed(() => {
       switch (useQuasar().screen.name) {
@@ -111,32 +67,48 @@ export default defineComponent({
       }
     });
 
-    const updateSearchResults = (query) => {
-      const dataType = query.type;
-      const searchText = query.search;
-      if (dataType && searchText) {
-        useApi.data.fuzzy(accessToken, dataType, searchText).then(({data}) => {
-          searchResults.value = data;
-        });
-      }
+    return {
+      accessToken,
+      searchResults,
+      perPage,
+      columnCount
     };
-    updateSearchResults(useRoute().query);
-
-    return {accessToken, searchResults, covers, tagCount, columnCount, updateSearchResults};
   },
   created() {
     this.$watch(
       () => this.$route.query,
-      query => this.updateSearchResults(query)
+      () => {
+        this.searchResults = [];
+        this.$refs.infiniteScroll["reset"]();
+        this.$refs.infiniteScroll["resume"]();
+        this.$refs.infiniteScroll["trigger"]();
+      }
     );
   },
   methods: {
     i18n(path) {
       return this.$t('pages.searchPage.' + path);
     },
-    emitGoBack() {
-      this.$emit("go-back");
+    updateSearchResults(query, page) {
+      const dataType = query.type;
+      const searchText = query.search;
+      if (dataType && searchText) {
+        return useApi.data.fuzzy(
+          this.accessToken,
+          dataType,
+          searchText,
+          page,
+          this.perPage
+        );
+      } else {
+        return Promise.resolve([]);
+      }
     },
+    async onLoad(index, done) {
+      const {data} = await this.updateSearchResults(this.$route.query, index);
+      this.searchResults.push(...data);
+      done(data.length < this.perPage);
+    }
   },
 });
 </script>

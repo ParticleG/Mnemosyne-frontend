@@ -5,7 +5,7 @@
     icon="login"
     padding="sm"
     round
-    @click="$router.push('/stack/login')"/>
+    @click="$router.push('/login')"/>
   <q-btn
     v-show="loggedIn"
     flat
@@ -62,23 +62,23 @@
             spread>
             <q-btn
               no-caps
-              @click="goProfile({tab: 'relationships', type: 'followers'})">
-              {{ i18n('labels.followers') }}<br>
-              {{ userStore.count.followers }}
+              @click="goProfile({tab: 'relationships', type: 'following'})">
+              {{ i18n('labels.following') }}<br>
+              {{ userStore.statistics.following }}
             </q-btn>
             <q-separator vertical/>
             <q-btn
               no-caps
-              @click="goProfile({tab: 'relationships', type: 'following'})">
-              {{ i18n('labels.following') }}<br>
-              {{ userStore.count.following }}
+              @click="goProfile({tab: 'relationships', type: 'followers'})">
+              {{ i18n('labels.followers') }}<br>
+              {{ userStore.statistics.followers }}
             </q-btn>
             <q-separator vertical/>
             <q-btn
               no-caps
               @click="goProfile({tab: 'stars'})">
               {{ i18n('labels.stars') }}<br>
-              {{ userStore.count.stars }}
+              {{ userStore.statistics.starred }}
             </q-btn>
           </q-btn-group>
         </q-card-section>
@@ -91,14 +91,14 @@
               no-caps
               @click="goProfile({tab: 'posts'})">
               {{ i18n('labels.posts') }}<br>
-              {{ userStore.count.posts }}
+              {{ userStore.statistics.posts }}
             </q-btn>
             <q-separator vertical/>
             <q-btn
               no-caps
               @click="goProfile({tab: 'collections'})">
               {{ i18n('labels.collections') }}<br>
-              {{ userStore.count.collections }}
+              {{ userStore.statistics.collections }}
             </q-btn>
           </q-btn-group>
         </q-card-section>
@@ -118,24 +118,25 @@
 </template>
 
 <script>
-import {defineComponent, ref} from 'vue';
-
+import {storeToRefs} from "pinia";
+import {computed, defineComponent} from 'vue';
 import {useUserStore} from "stores/user";
 
 export default defineComponent({
   name: "ProfileButton",
   setup() {
-    const loggedIn = ref(false);
-
     const userStore = useUserStore();
-
+    const loggedIn = computed(() => {
+      return userStore["id"] > 0
+    });
     return {
       userStore,
       loggedIn,
     };
   },
   async created() {
-    this.loggedIn = await this.userStore.check();
+    await this.userStore.check();
+    this.userStore.update();
   },
   methods: {
     i18n(path) {

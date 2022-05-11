@@ -67,6 +67,15 @@ const useApi = {
         email: email
       }
     ),
+    verifyPhone: (phone) => genericHttp(
+      '/auth/verify/phone',
+      METHOD.POST,
+      null,
+      null,
+      {
+        phone: phone
+      }
+    ),
     loginEmailPassword: (email, password) => genericHttp(
       '/auth/login/email',
       METHOD.POST,
@@ -74,6 +83,16 @@ const useApi = {
       null,
       {
         email: email,
+        password: password
+      }
+    ),
+    loginPhonePassword: (phone, password) => genericHttp(
+      '/auth/login/phone',
+      METHOD.POST,
+      null,
+      null,
+      {
+        phone: phone,
         password: password
       }
     ),
@@ -87,6 +106,16 @@ const useApi = {
         code: code
       }
     ),
+    loginPhoneCode: (phone, code) => genericHttp(
+      '/auth/login/phone',
+      METHOD.POST,
+      null,
+      null,
+      {
+        phone: phone,
+        code: code
+      }
+    ),
     resetEmail: (email, code, newPassword) => genericHttp(
       '/auth/reset/email',
       METHOD.PUT,
@@ -94,6 +123,17 @@ const useApi = {
       null,
       {
         email: email,
+        code: code,
+        newPassword: newPassword
+      }
+    ),
+    resetPhone: (phone, code, newPassword) => genericHttp(
+      '/auth/reset/phone',
+      METHOD.PUT,
+      null,
+      null,
+      {
+        phone: phone,
         code: code,
         newPassword: newPassword
       }
@@ -110,8 +150,31 @@ const useApi = {
         code: code
       }
     ),
+    migratePhone: (accessToken, newPhone, code) => genericHttp(
+      '/auth/migrate/phone',
+      METHOD.PUT,
+      null,
+      {
+        'x-access-token': accessToken
+      },
+      {
+        newPhone: newPhone,
+        code: code
+      }
+    ),
     deactivateEmail: (accessToken, code) => genericHttp(
       '/auth/deactivate/email',
+      METHOD.DELETE,
+      null,
+      {
+        'x-access-token': accessToken
+      },
+      {
+        code: code
+      }
+    ),
+    deactivatePhone: (accessToken, code) => genericHttp(
+      '/auth/deactivate/phone',
       METHOD.DELETE,
       null,
       {
@@ -134,7 +197,7 @@ const useApi = {
       },
       data
     ),
-    fuzzy: (accessToken, dataType, query) => genericHttp(
+    fuzzy: (accessToken, dataType, query, page, perPage, startTime, endTime) => genericHttp(
       '/data/fuzzy',
       METHOD.POST,
       {
@@ -144,9 +207,30 @@ const useApi = {
         'x-access-token': accessToken
       },
       {
-        query: query
+        query: query,
+        page: page,
+        perPage: perPage,
+        startTime: startTime,
+        endTime: endTime,
       }
     ),
+    search: (accessToken, dataType, data, page, perPage, startTime, endTime) => {
+      data["page"] = page;
+      data["perPage"] = perPage;
+      data["startTime"] = startTime;
+      data["endTime"] = endTime;
+      return genericHttp(
+        '/data/fuzzy',
+        METHOD.POST,
+        {
+          dataType: dataType,
+        },
+        {
+          'x-access-token': accessToken
+        },
+        data
+      )
+    },
   },
   user: {
     getInfo: (accessToken, userId) => genericHttp(

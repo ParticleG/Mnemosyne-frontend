@@ -64,7 +64,9 @@ export default {
     },
     typeTabs: {
       labels: {
+        Any: "All",
         Audios: "Audios",
+        Binary: "Binary",
         Documents: "Documents",
         Ebooks: "Ebooks",
         Images: "Images",
@@ -76,10 +78,12 @@ export default {
       labels: {
         title: 'Upload data',
         name: 'Name',
+        description: 'Description',
         tags: "Tags",
         collection: "Collection",
         content: "Content",
         visibility: "Visibility",
+        preview: "Preview",
         extra: "Extra",
         link: "Link",
         file: "File",
@@ -87,10 +91,16 @@ export default {
         cancel: "Cancel",
         upload: "Upload",
       },
+      notifications: {
+        submit: {
+          success: 'Upload successful',
+          failed: 'Failed to upload: ',
+          error: 'Error uploading'
+        }
+      },
       slider: [
         "Private",
-        "Friend Only",
-        "Search Only",
+        "Protected",
         "Public",
       ]
     }

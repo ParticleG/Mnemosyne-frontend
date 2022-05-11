@@ -5,12 +5,13 @@
     indicator-color="primary"
     inline-label
     no-caps
-    v-model="dataType"
+    :model-value="dataType"
+    @update:model-value="onDataTypeChange"
     style="max-width: 100%;">
     <q-tab
-      v-for="(type, index) in DataTypes"
+      v-for="(type, index) in availableTypes"
       :key="index"
-      :disable="type.disable"
+      :disable="processing"
       :icon="$q.screen.lt.sm ? undefined : type.icon"
       :label="i18n(`labels.${type.name}`)"
       :name="type.name"/>
@@ -18,7 +19,7 @@
 </template>
 
 <script>
-import {computed, defineComponent} from 'vue';
+import {computed, defineComponent, ref} from 'vue';
 import {DataTypes} from "boot/config";
 
 export default defineComponent({
@@ -27,6 +28,13 @@ export default defineComponent({
     modelValue: {
       type: String,
       required: true,
+    },
+    hidden: {
+      type: Array,
+      default: () => [],
+    },
+    changeHandler: {
+      type: Function,
     }
   },
   setup(props, {emit}) {
@@ -35,9 +43,28 @@ export default defineComponent({
       set: (value) => emit('update:modelValue', value)
     });
 
+    const availableTypes = computed(() => {
+      return DataTypes.filter((_, index) => !props.hidden.includes(index));
+    });
+    const processing = ref(false);
+    const onDataTypeChange = async (value) => {
+      dataType.value = value;
+      if (props.changeHandler) {
+        processing.value = true;
+        try {
+          await props.changeHandler(value);
+        } catch (e) {
+          console.error(e);
+        }
+        processing.value = false;
+      }
+    };
+
     return {
       dataType,
-      DataTypes,
+      availableTypes,
+      processing,
+      onDataTypeChange
     };
   },
   methods: {
