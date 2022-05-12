@@ -23,6 +23,10 @@ export const useUserStore = defineStore('user', {
       posts: 0,
       collections: 0,
     },
+    following: [],
+    followers: [],
+    starredData: [],
+    starredCollections: [],
   }),
   actions: {
     async check() {
@@ -57,6 +61,14 @@ export const useUserStore = defineStore('user', {
         this.email = data.email;
         this.phone = data.phone;
         this.statistics = data.statistics;
+
+        const {following, followers} = (await $api.user.follow(this.accessToken)).data;
+        this.following = following;
+        this.followers = followers;
+
+        const {data: starredData, collection: starredCollections} = (await $api.user.starred(this.accessToken)).data;
+        this.starredData = starredData;
+        this.starredCollections = starredCollections;
       } catch (err) {
         console.log(err);
       }

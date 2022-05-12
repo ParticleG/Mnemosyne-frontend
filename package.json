@@ -8,11 +8,16 @@
   "scripts": {
     "spa dev": "quasar dev",
     "spa release": "quasar build",
+    "electron dev": "quasar dev -m electron",
+    "electron release": "quasar build -m electron",
+    "capacitor dev android": "quasar dev -m capacitor -T android",
+    "capacitor release android": "quasar build -m capacitor -T android",
     "lint": "eslint --ext .js,.vue ./",
     "format": "prettier --write \"**/*.{js,vue,scss,html,md,json}\" --ignore-path .gitignore",
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
+    "@electron/remote": "^2.0.8",
     "@quasar/extras": "^1.0.0",
     "@vuelidate/core": "^2.0.0-alpha.40",
     "@vuelidate/validators": "^2.0.0-alpha.28",
@@ -31,6 +36,8 @@
     "@babel/eslint-parser": "^7.13.14",
     "@quasar/app-webpack": "^3.0.0",
     "@quasar/quasar-app-extension-qmediaplayer": "^2.0.0-beta.6",
+    "electron": "^18.2.3",
+    "electron-packager": "^15.5.1",
     "eslint": "^8.10.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-vue": "^8.5.0",

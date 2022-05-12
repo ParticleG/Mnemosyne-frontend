@@ -6,27 +6,27 @@
       :class="$q.screen.xs ? 'text-h4' : ($q.screen.sm ? 'text-h2' : 'text-h1')">
       {{ i18n('labels.noResults') }}
     </div>
-    <div
-      class="col-grow full-width"
-      :style="{columnCount: columnCount, columnGap: 0}">
-      <q-infinite-scroll
-        ref="infiniteScroll"
-        :offset="10"
-        @load="onLoad">
+    <q-infinite-scroll
+      ref="infiniteScroll"
+      :offset="10"
+      @load="onLoad">
+      <div class="row">
         <div
           v-for="(item, index) in searchResults"
           :key="index"
-          ref="resultElements"
-          class="q-pb-md q-px-sm">
+          class="q-pb-md q-px-sm"
+          :class="`col-${12/columnCount}`">
           <ImagesCard
             v-if="item.type === 'Images'"
-            :data="item"/>
+            :data="item"
+            :starred="false"/>
           <VideosCard
             v-if="item.type === 'Videos'"
-            :data="item"/>
+            :data="item"
+            :starred="false"/>
         </div>
-      </q-infinite-scroll>
-    </div>
+      </div>
+    </q-infinite-scroll>
     <div class="self-center">
       <q-spinner-dots color="primary" size="40px"/>
     </div>
@@ -37,22 +37,22 @@
 import {storeToRefs} from "pinia";
 import {useQuasar} from "quasar";
 import {computed, defineComponent, ref} from 'vue';
-import {useRoute} from "vue-router";
 import {useApi} from "boot/axios";
 import {useUserStore} from "stores/user";
 
 import ImagesCard from "components/DataCards/ImagesCard";
 import VideosCard from "components/DataCards/VideosCard";
-import {arrayToChunks, sleep} from "boot/config";
 
 export default defineComponent({
   name: "SearchPage",
-  components: {VideosCard, ImagesCard},
+  components: {ImagesCard, VideosCard},
   emits: ['go-back'],
   setup() {
     const {accessToken} = storeToRefs(useUserStore());
     const searchResults = ref([]);
     const perPage = ref(30);
+    const loading = ref(false);
+    const finished = ref(false);
 
     const columnCount = computed(() => {
       switch (useQuasar().screen.name) {
@@ -71,6 +71,8 @@ export default defineComponent({
       accessToken,
       searchResults,
       perPage,
+      loading,
+      finished,
       columnCount
     };
   },
@@ -84,6 +86,8 @@ export default defineComponent({
         this.$refs.infiniteScroll["trigger"]();
       }
     );
+    this.onLoad(1, () => {
+    });
   },
   methods: {
     i18n(path) {
@@ -105,9 +109,12 @@ export default defineComponent({
       }
     },
     async onLoad(index, done) {
+      this.loading = true;
       const {data} = await this.updateSearchResults(this.$route.query, index);
       this.searchResults.push(...data);
-      done(data.length < this.perPage);
+      this.loading = false;
+      this.finished = data.length < this.perPage;
+      done(this.finished);
     }
   },
 });

@@ -185,7 +185,7 @@ const useApi = {
       }
     ),
   },
-  data:{
+  data: {
     upload: (accessToken, dataType, data) => genericHttp(
       '/data/upload',
       METHOD.POST,
@@ -257,6 +257,26 @@ const useApi = {
       METHOD.GET,
       {
         userId: userId
+      },
+      {
+        'x-access-token': accessToken
+      }
+    ),
+    follow: (accessToken, userId) => genericHttp(
+      '/user/follow',
+      METHOD.GET,
+      {
+        userId: userId
+      },
+      {
+        'x-access-token': accessToken
+      }
+    ),
+    starred: (accessToken, userId) => genericHttp(
+      '/user/starred',
+      METHOD.GET,
+      {
+        userId: userId,
       },
       {
         'x-access-token': accessToken
