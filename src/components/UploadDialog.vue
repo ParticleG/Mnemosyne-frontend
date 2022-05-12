@@ -57,7 +57,7 @@
             v-model="contentType"/>
         </div>
         <q-slide-transition>
-          <div v-show="advanced">
+          <div v-show="advanced" class="q-gutter-y-sm">
             <q-slider
               class="q-mt-lg q-px-sm"
               :color="sliderColors[dataVisibility]"
@@ -89,7 +89,7 @@
             color="primary"
             dense
             flat
-            :label="i18n('labels.advanced')"
+            :label="i18n(`labels.${advanced ? 'less' : 'more'}`)"
             @click="advanced = !advanced"/>
         </div>
       </q-card-section>

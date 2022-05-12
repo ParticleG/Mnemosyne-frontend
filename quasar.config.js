@@ -196,6 +196,10 @@ module.exports = configure(function (ctx) {
       }
     },
 
+    bin:{
+      windowsAndroidStudio: "C:/dev/JetBrains/Scripts/studio.cmd"
+    },
+
     // Full list of options: https://v2.quasar.dev/quasar-cli-webpack/developing-cordova-apps/configuring-cordova
     cordova: {
       // noIosLegacyBuildFlag: true, // uncomment only if you know what you are doing
@@ -203,7 +207,8 @@ module.exports = configure(function (ctx) {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-webpack/developing-capacitor-apps/configuring-capacitor
     capacitor: {
-      hideSplashscreen: true
+      hideSplashscreen: true,
+      iosStatusBarPadding: true,
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-webpack/developing-electron-apps/configuring-electron
