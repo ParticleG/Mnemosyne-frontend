@@ -41,12 +41,21 @@
           v-model="dataCollection"/>
         <div class="row">
           <q-input
+            v-if="contentType === 'link'"
             class="col-grow"
             clearable
             :dense="$q.screen.lt.sm"
             outlined
             :placeholder="i18n('labels.content')"
             v-model="dataContent"/>
+          <q-file
+            v-if="contentType === 'file'"
+            class="col-grow"
+            clearable
+            :dense="$q.screen.lt.sm"
+            :label="i18n('labels.chooseFile')"
+            outlined
+            v-model="dataFile"/>
           <q-toggle
             false-value="link"
             true-value="file"
@@ -58,24 +67,6 @@
         </div>
         <q-slide-transition>
           <div v-show="advanced" class="q-gutter-y-sm">
-            <q-slider
-              class="q-mt-lg q-px-sm"
-              :color="sliderColors[dataVisibility]"
-              :min="0"
-              :max="2"
-              label
-              label-always
-              :label-value="i18n(`slider.${dataVisibility}`)"
-              markers
-              marker-labels
-              track-size="8px"
-              v-model="dataVisibility"/>
-            <q-input
-              clearable
-              :dense="$q.screen.lt.sm"
-              outlined
-              :placeholder="i18n('labels.preview')"
-              v-model="dataPreview"/>
             <q-input
               clearable
               :dense="$q.screen.lt.sm"
@@ -118,7 +109,6 @@
 import {useDialogPluginComponent} from "quasar";
 import {defineComponent, ref} from 'vue';
 import {DataTypes} from "boot/config";
-import {useUserStore} from "stores/user";
 
 import TypeTabs from "components/TypeTabs";
 
@@ -128,7 +118,6 @@ export default defineComponent({
   emits: [...useDialogPluginComponent.emits],
   setup() {
     const {dialogRef, onDialogHide} = useDialogPluginComponent();
-    const userStore = useUserStore();
 
     const sliderColors = ["red", "orange", "blue", "green"];
 
@@ -138,8 +127,7 @@ export default defineComponent({
     const dataTags = ref([]);
     const dataCollection = ref(-1);
     const dataContent = ref("");
-    const dataVisibility = ref(2);
-    const dataPreview = ref("");
+    const dataFile = ref(new File([], ""));
     const dataExtra = ref("");
 
     const contentType = ref("link");
@@ -149,7 +137,6 @@ export default defineComponent({
     return {
       dialogRef,
       onDialogHide,
-      userStore,
       sliderColors,
       dataType,
       dataName,
@@ -157,8 +144,7 @@ export default defineComponent({
       dataTags,
       dataCollection,
       dataContent,
-      dataVisibility,
-      dataPreview,
+      dataFile,
       dataExtra,
       contentType,
       advanced,
@@ -193,20 +179,30 @@ export default defineComponent({
     async upload() {
       try {
         this.uploading = true;
-        await this.$api.data.upload(
-          this.userStore.accessToken,
-          this.dataType,
-          {
-            name: this.dataName,
-            description: this.dataDescription,
-            tags: this.dataTags,
-            content: this.dataContent,
-            extra: this.dataExtra,
-            preview: this.dataPreview,
-            collection: this.dataCollection,
-            visibility: this.dataVisibility,
-          }
-        );
+        if (this.contentType === 'file') {
+          let formData = new FormData();
+          formData.append('file', this.dataFile);
+          // formData.append('type', this.dataType);
+          // formData.append('name', this.dataName);
+          // formData.append('description', this.dataDescription);
+          // formData.append('tags', JSON.stringify(this.dataTags));
+          // formData.append('content', this.dataContent);
+          // formData.append('extra', this.dataExtra);
+          // formData.append('collection', this.dataCollection);
+          await this.$api.data.upload(formData);
+        } else {
+          await this.$api.data.post(
+            {
+              type: this.dataType,
+              name: this.dataName,
+              description: this.dataDescription,
+              tags: this.dataTags,
+              content: this.dataContent,
+              extra: this.dataExtra,
+              collection: this.dataCollection,
+            }
+          );
+        }
         this.$q.notify({
           type: 'positive',
           message: this.i18n(`notifications.submit.success`),

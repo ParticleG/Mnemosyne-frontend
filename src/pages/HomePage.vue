@@ -1,31 +1,34 @@
 <template>
-  <q-page class="flex flex-center row">
-    <div class="col-9 col-sm-10 col-xs-11 column q-gutter-y-sm q-gutter-sm-y-md">
-      <div
-        class="text-center text-weight-regular"
-        :class="textSize">
-        {{ i18n("labels.title") }}
+  <q-page class="flex column q-pa-sm q-pa-md-md">
+    <div
+      v-if="!searchResults.length"
+      class="absolute-center text-grey"
+      :class="$q.screen.xs ? 'text-h4' : ($q.screen.sm ? 'text-h2' : 'text-h1')">
+      {{ i18n('labels.noResults') }}
+    </div>
+    <q-infinite-scroll
+      ref="infiniteScroll"
+      :offset="10"
+      @load="onLoad">
+      <div class="row">
+        <div
+          v-for="(item, index) in searchResults"
+          :key="index"
+          class="q-pb-md q-px-sm"
+          :class="`col-${12/columnCount}`">
+          <ImagesCard
+            v-if="item['type'] === 'Images'"
+            :data="item"
+            :starred="false"/>
+          <VideosCard
+            v-if="item['type'] === 'Videos'"
+            :data="item"
+            :starred="false"/>
+        </div>
       </div>
-      <TypeTabs class="q-px-md" v-model="dataType"/>
-      <q-form @submit="submit">
-        <q-input
-          name="searchText"
-          :dense="$q.screen.lt.sm"
-          debounce="1000"
-          outlined
-          :placeholder="i18n('labels.search')"
-          rounded
-          v-model="searchText">
-          <template v-slot:append>
-            <q-btn
-              dense
-              flat
-              icon="search"
-              round
-              @click="submit"/>
-          </template>
-        </q-input>
-      </q-form>
+    </q-infinite-scroll>
+    <div v-show="loading" class="self-center">
+      <q-spinner-dots color="primary" size="40px"/>
     </div>
     <q-page-sticky position="bottom-right" :offset="[18, 18]">
       <q-btn
@@ -40,61 +43,84 @@
 <script>
 import {useQuasar} from "quasar";
 import {computed, defineComponent, ref} from 'vue';
-import {DataTypes} from "boot/config";
+import {useApi} from "boot/axios";
 
+import ImagesCard from "components/DataCards/ImagesCard";
+import VideosCard from "components/DataCards/VideosCard";
 import UploadDialog from "components/UploadDialog";
-import TypeTabs from "components/TypeTabs";
+import {DataTypes} from "boot/config";
 
 export default defineComponent({
   name: "HomePage",
-  components: {TypeTabs},
+  components: {ImagesCard, VideosCard},
+  emits: ['go-back'],
   setup() {
-    const $q = useQuasar();
-    const textSize = computed(() => {
-      switch ($q.screen.name) {
-        case "xl":
-        case "lg":
-          return "text-h1";
+    const searchResults = ref([]);
+    const perPage = ref(30);
+    const loading = ref(false);
+    const finished = ref(false);
+
+    const columnCount = computed(() => {
+      switch (useQuasar().screen.name) {
         case "md":
-        case "sm":
-          return "text-h2";
+          return 3;
+        case "lg":
+          return 4;
+        case "xl":
+          return 6;
         default:
-          return "text-h3";
+          return 2;
       }
     });
-    const searchText = ref("");
-    const dataType = ref(DataTypes[0].name);
+
     return {
-      textSize,
-      searchText,
-      dataType
+      searchResults,
+      perPage,
+      loading,
+      finished,
+      columnCount
     };
   },
-  methods: {
-    i18n(relativePath) {
-      return this.$t("pages.homepage." + relativePath);
-    },
-    submit() {
-      if (!this.searchText) {
-        return;
+  created() {
+    this.$watch(
+      () => this.$route.query,
+      () => {
+        this.searchResults = [];
+        this.$refs.infiniteScroll["reset"]();
+        this.$refs.infiniteScroll["resume"]();
+        this.$refs.infiniteScroll["trigger"]();
       }
-      this.$router.push({
-        name: "search",
-        query: {
-          type: this.dataType,
-          search: this.searchText
-        }
-      });
+    );
+  },
+  methods: {
+    i18n(path) {
+      return this.$t('pages.homePage.' + path);
+    },
+    updateSearchResults(query, page) {
+      const dataType = query && query.type ? query.type : DataTypes[0].name;
+      const searchText = query && query.search ? query.search : "";
+      return useApi.data.fuzzy(
+        dataType,
+        searchText,
+        page,
+        this.perPage
+      );
+    },
+    async onLoad(index, done) {
+      this.loading = true;
+      const body = await this.updateSearchResults(this.$route.query, index);
+      console.log(body);
+      const data = body.data;
+      this.searchResults.push(...data);
+      this.loading = false;
+      this.finished = data.length < this.perPage;
+      done(this.finished);
     },
     uploadDialog() {
       this.$q.dialog({
         component: UploadDialog,
       });
     }
-  }
+  },
 });
 </script>
-
-<style scoped>
-
-</style>

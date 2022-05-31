@@ -8,28 +8,16 @@ const DataTypes = Object.freeze([
     icon: "mdi-music"
   },
   {
-    name: "Binary",
+    name: "Binaries",
     icon: "mdi-matrix"
-  },
-  {
-    name: "Documents",
-    icon: "mdi-file-document"
-  },
-  {
-    name: "Ebooks",
-    icon: "mdi-book-open-variant"
   },
   {
     name: "Images",
     icon: "mdi-image"
   },
   {
-    name: "Models",
-    icon: "mdi-cube-scan"
-  },
-  {
-    name: "Videos",
-    icon: "mdi-movie-open"
+    name: "Scatters",
+    icon: "mdi-chart-line"
   }
 ]);
 

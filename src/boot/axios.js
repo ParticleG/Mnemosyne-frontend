@@ -41,172 +41,30 @@ const genericHttp = (
 };
 
 const useApi = {
-  auth: {
-    check: (accessToken) => genericHttp(
-      '/auth/check',
-      METHOD.GET,
-      null,
-      {
-        'x-access-token': accessToken
-      }
-    ),
-    refresh: (refreshToken) => genericHttp(
-      '/auth/refresh',
-      METHOD.GET,
-      null,
-      {
-        'x-refresh-token': refreshToken
-      }
-    ),
-    verifyEmail: (email) => genericHttp(
-      '/auth/verify/email',
-      METHOD.POST,
-      null,
-      null,
-      {
-        email: email
-      }
-    ),
-    verifyPhone: (phone) => genericHttp(
-      '/auth/verify/phone',
-      METHOD.POST,
-      null,
-      null,
-      {
-        phone: phone
-      }
-    ),
-    loginEmailPassword: (email, password) => genericHttp(
-      '/auth/login/email',
-      METHOD.POST,
-      null,
-      null,
-      {
-        email: email,
-        password: password
-      }
-    ),
-    loginPhonePassword: (phone, password) => genericHttp(
-      '/auth/login/phone',
-      METHOD.POST,
-      null,
-      null,
-      {
-        phone: phone,
-        password: password
-      }
-    ),
-    loginEmailCode: (email, code) => genericHttp(
-      '/auth/login/email',
-      METHOD.POST,
-      null,
-      null,
-      {
-        email: email,
-        code: code
-      }
-    ),
-    loginPhoneCode: (phone, code) => genericHttp(
-      '/auth/login/phone',
-      METHOD.POST,
-      null,
-      null,
-      {
-        phone: phone,
-        code: code
-      }
-    ),
-    resetEmail: (email, code, newPassword) => genericHttp(
-      '/auth/reset/email',
-      METHOD.PUT,
-      null,
-      null,
-      {
-        email: email,
-        code: code,
-        newPassword: newPassword
-      }
-    ),
-    resetPhone: (phone, code, newPassword) => genericHttp(
-      '/auth/reset/phone',
-      METHOD.PUT,
-      null,
-      null,
-      {
-        phone: phone,
-        code: code,
-        newPassword: newPassword
-      }
-    ),
-    migrateEmail: (accessToken, newEmail, code) => genericHttp(
-      '/auth/migrate/email',
-      METHOD.PUT,
-      null,
-      {
-        'x-access-token': accessToken
-      },
-      {
-        newEmail: newEmail,
-        code: code
-      }
-    ),
-    migratePhone: (accessToken, newPhone, code) => genericHttp(
-      '/auth/migrate/phone',
-      METHOD.PUT,
-      null,
-      {
-        'x-access-token': accessToken
-      },
-      {
-        newPhone: newPhone,
-        code: code
-      }
-    ),
-    deactivateEmail: (accessToken, code) => genericHttp(
-      '/auth/deactivate/email',
-      METHOD.DELETE,
-      null,
-      {
-        'x-access-token': accessToken
-      },
-      {
-        code: code
-      }
-    ),
-    deactivatePhone: (accessToken, code) => genericHttp(
-      '/auth/deactivate/phone',
-      METHOD.DELETE,
-      null,
-      {
-        'x-access-token': accessToken
-      },
-      {
-        code: code
-      }
-    ),
-  },
   data: {
-    upload: (accessToken, dataType, data) => genericHttp(
-      '/data/upload',
+    post: (data) => genericHttp(
+      '/data/post',
       METHOD.POST,
-      {
-        dataType: dataType,
-      },
-      {
-        'x-access-token': accessToken
-      },
+      null,
+      null,
       data
     ),
-    fuzzy: (accessToken, dataType, query, page, perPage, startTime, endTime) => genericHttp(
+    upload: (formData) => genericHttp(
+      '/data/upload',
+      METHOD.POST,
+      null,
+      {
+        'Content-type': 'multipart/form-data'
+      },
+      formData
+    ),
+    fuzzy: (type, query, page, perPage, startTime, endTime) => genericHttp(
       '/data/fuzzy',
       METHOD.POST,
+      null,
+      null,
       {
-        dataType: dataType,
-      },
-      {
-        'x-access-token': accessToken
-      },
-      {
+        type: type,
         query: query,
         page: page,
         perPage: perPage,
@@ -214,7 +72,7 @@ const useApi = {
         endTime: endTime,
       }
     ),
-    search: (accessToken, dataType, data, page, perPage, startTime, endTime) => {
+    search: (dataType, data, page, perPage, startTime, endTime) => {
       data["page"] = page;
       data["perPage"] = perPage;
       data["startTime"] = startTime;
@@ -225,63 +83,10 @@ const useApi = {
         {
           dataType: dataType,
         },
-        {
-          'x-access-token': accessToken
-        },
+        null,
         data
       )
     },
-  },
-  user: {
-    getInfo: (accessToken, userId) => genericHttp(
-      '/user/info',
-      METHOD.GET,
-      {
-        userId: userId
-      },
-      {
-        'x-access-token': accessToken
-      }
-    ),
-    updateInfo: (accessToken, data) => genericHttp(
-      '/user/info',
-      METHOD.PUT,
-      null,
-      {
-        'x-access-token': accessToken
-      },
-      data
-    ),
-    getAvatar: (accessToken, userId) => genericHttp(
-      '/user/avatar',
-      METHOD.GET,
-      {
-        userId: userId
-      },
-      {
-        'x-access-token': accessToken
-      }
-    ),
-    follow: (accessToken, userId) => genericHttp(
-      '/user/follow',
-      METHOD.GET,
-      {
-        userId: userId
-      },
-      {
-        'x-access-token': accessToken
-      }
-    ),
-    starred: (accessToken, userId) => genericHttp(
-      '/user/starred',
-      METHOD.GET,
-      {
-        userId: userId,
-      },
-      {
-        'x-access-token': accessToken
-      }
-    ),
   }
 };
 

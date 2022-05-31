@@ -5,25 +5,29 @@
     v-ripple>
     <q-img
       :ratio="1"
-      :src="data.preview">
+      :src="data.content">
       <template v-slot:loading>
         <q-skeleton class="absolute-full"/>
       </template>
     </q-img>
-    <CreatorItem
-      :modelValue="data.creator"
-      :name="data.name"
-      :starred="starred"/>
+    <q-item dense>
+      <q-item-section>
+        <q-item-label :lines="1">
+          {{ data.name }}
+        </q-item-label>
+        <q-item-label caption :lines="1">
+          {{ data.description || "No description"  }}
+        </q-item-label>
+      </q-item-section>
+    </q-item>
   </q-card>
 </template>
 
 <script>
 import {defineComponent} from 'vue';
-import CreatorItem from "components/CreatorItem";
 
 export default defineComponent({
   name: "ImagesCard",
-  components: {CreatorItem},
   props: {
     data: {
       type: Object,

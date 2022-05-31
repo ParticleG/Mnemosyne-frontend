@@ -15,22 +15,21 @@
       :source="data.content"
       type="video"
       style="aspect-ratio: 1"/>
-    <CreatorItem
-      :modelValue="data.creator"
-      :name="data.name"
-      :starred="starred"/>
+    <q-item dense>
+      <q-item-section>
+        <q-item-label :lines="1">
+          {{ data.name }}
+        </q-item-label>
+      </q-item-section>
+    </q-item>
   </q-card>
 </template>
 
 <script>
 import {defineComponent} from 'vue';
-import CreatorItem from "components/CreatorItem";
 
 export default defineComponent({
   name: "VideosCard",
-  components: {
-    CreatorItem
-  },
   props: {
     data: {
       type: Object,
